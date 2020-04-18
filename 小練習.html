@@ -1,0 +1,143 @@
+<html>
+
+    <div id="app">
+        <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+        <div id="player">
+            <div class="header" >
+                <span id="logo">小播放器=W=(小小的工具,大大的有用!)</span>
+                <input type="text" autocomplete="off" placeholder="search" id="search" v-model="query" @keyup.enter="searchMusic"/>
+            </div>
+            <div class="sidebar">
+                <div class="song_list">
+                    <div v-for="(item,index) in musicList" v-if="index < 10" class="songlist">
+                        <b>{{index+1}}.</b>
+                        <b>歌名:{{item.name}}</b>
+                        <span v-for="(item,index) in item.artists" class="songlist">
+                            <b><i class="el-icon-user-solid"></i>:{{item.name}} </b>
+                        </span>
+                        <a href="javascript:;" @click="playMusic(item.id)"> <i class="el-icon-video-play"></i></a>
+                    </div>
+                </div>
+            </div class="sidebar">
+            <div class="main">
+                <img :src="musicCover" height="100%" background-position: center cover autoRotate>
+            </div>
+            <div id="footer">
+                <audio ref="audio" :src="musicURL" controls autoplay loop style="width: 100%;"></audio>
+            </div>
+        </div>
+
+        <div style="width:1;height:480px; background:#E0E0E0;"></div>
+
+
+        <script>
+            var app = new Vue({
+            el:"#player",
+            data:{
+                query:"",
+                musicList:[],
+                musicURL:"",
+                musicCover:"",
+            },
+            methods:{
+                searchMusic:function(){
+                    var that = this;
+                    axios.get("https://autumnfish.cn/search?keywords=" +this.query)
+                    .then(function(response){
+                        that.musicList = response.data.result.songs;
+                        console.log(response.data.result.songs);
+                    },function(err){})
+                },
+
+                playMusic:function (musicId){
+                    var that = this;
+                    axios.get("https://autumnfish.cn/song/url?id="+musicId)
+                    .then(function(response){
+                        that.musicURL = response.data.data[0].url;
+                    },function(err){}
+                    ),
+                    axios.get("https://autumnfish.cn/song/detail?ids="+musicId)
+                    .then(function(response){
+                        that.musicCover = response.data.songs[0].al.picUrl;
+                    },function(err){})
+                },
+            },
+        })
+        </script>
+    </div>
+</html>
+
+<style>
+
+    .song_list{
+        padding: 10px;
+        font-size: 120%;
+    }
+
+    #logo{
+        padding:10px ;
+        float: left;
+        font-size: 40px;
+        margin: 1%;
+    }
+
+    #search{
+        padding: 10;
+        float:right;
+        border-radius: 15px;
+        filter: brightness(90%);
+        background-color: white;
+        margin: 1.5%;
+        width: 25%;
+        border: 0;
+        height: 40%;
+        margin-top: 2%;
+    }
+
+    #app{
+        margin:0;
+        border: 0;
+        padding:0;
+    }
+
+    .header{
+        position:sticky;
+        width: 100%;
+        height: 15%;
+        float: top;
+        background-color: blanchedalmond;
+    }
+
+    .sidebar{
+        position:sticky;
+        width: 40%;
+        height: 65%;
+        float: left;
+        filter:brightness(90%);
+        background-color: white;
+
+    }
+
+    .main{
+        position:sticky;
+        width: 60%;
+        height: 65%;
+        float: right;
+    }
+
+    #footer{
+        position:static;
+        width: 100%;
+        height: 20%;
+        float: bottom;
+
+    }
+
+
+</style>
+
+
